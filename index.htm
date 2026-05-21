@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-PT"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liga Freeze 2025-2026 · Evolução</title>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com/">
+<script src="index_ficheiros/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0f1115; --bg2:#181c24; --bg3:#1f2430;
+  --text:#e8eaed; --text2:#a0a4ad; --text3:#6b6f78;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
+  --accent:#4a9eff;
+}
+@media (prefers-color-scheme: light) {
+  :root{ --bg:#fafafa; --bg2:#fff; --bg3:#f0f1f4;
+    --text:#1a1a1a; --text2:#5a5e66; --text3:#8a8e96;
+    --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.15);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.5}
+.container{max-width:1100px;margin:0 auto;padding:20px 16px 40px}
+header{margin-bottom:20px}
+h1{font-size:24px;font-weight:600;margin:0 0 4px}
+.subtitle{color:var(--text2);font-size:13px;margin:0}
+.tabs{display:flex;gap:4px;margin:20px 0 16px;background:var(--bg3);padding:4px;border-radius:10px;width:fit-content}
+.tab{padding:8px 18px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;border:none;background:transparent;color:var(--text2)}
+.tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.panel{display:none}
+.panel.active{display:block}
+
+/* Bar race */
+.controls{display:flex;align-items:center;gap:10px;background:var(--bg2);padding:10px 14px;border-radius:10px;margin-bottom:12px;flex-wrap:wrap;border:1px solid var(--border)}
+.btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);font-size:14px;padding:0}
+.btn:hover{background:var(--border2)}
+.btn svg{width:14px;height:14px;fill:currentColor}
+.slider{flex:1;min-width:160px;accent-color:var(--accent)}
+.jlbl{font-size:14px;font-weight:500;min-width:170px;text-align:center}
+.speed{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px}
+.speed select{font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text)}
+.race{position:relative;height:680px;background:var(--bg2);border-radius:12px;padding:0;overflow:hidden;border:1px solid var(--border)}
+.race-inner{position:relative;width:100%;height:100%;padding:12px 14px;box-sizing:border-box}
+.row{position:absolute;left:0;right:0;height:26px;display:flex;align-items:center;transition:transform .55s cubic-bezier(.4,0,.2,1);will-change:transform;box-sizing:border-box}
+.rank{width:26px;font-size:12px;font-weight:500;color:var(--text2);text-align:right;padding-right:6px;flex:none}
+.team-cell{width:160px;font-size:12px;font-weight:500;text-align:right;padding-right:8px;flex:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.mgr{font-size:10px;color:var(--text2);font-weight:400}
+.bar-wrap{flex:1;position:relative;height:20px}
+.bar{height:20px;border-radius:3px;transition:width .55s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:11px;font-weight:600;color:#fff;min-width:18px}
+.pts{width:54px;font-size:13px;font-weight:600;text-align:left;padding-left:8px;flex:none}
+.wld{width:64px;font-size:11px;color:var(--text2);text-align:left;padding-left:6px;flex:none;font-variant-numeric:tabular-nums}
+.jres{width:46px;display:flex;gap:2px;justify-content:flex-end;padding-right:6px;flex:none}
+.res-cell{width:12px;height:14px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:#fff}
+.res-w{background:#1d9e75}
+.res-l{background:#e24b4a}
+.res-d{background:#f0c14b;color:#5a4400}
+.res-empty{background:transparent;border:1px dashed var(--border2)}
+
+.legend{display:flex;gap:14px;font-size:11px;color:var(--text2);margin-top:8px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+
+.final{margin-top:18px;background:var(--bg2);border-radius:12px;padding:14px 16px;display:none;border:1px solid var(--border)}
+.final.show{display:block}
+.final h3{margin:0 0 10px;font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px}
+.final table{width:100%;border-collapse:collapse;font-size:12px}
+.final th{text-align:left;padding:6px 4px;font-weight:500;color:var(--text2);border-bottom:1px solid var(--border);font-size:11px}
+.final th.num,.final td.num{text-align:right;font-variant-numeric:tabular-nums}
+.final tr.podium-1 td{background:rgba(240,193,75,.12)}
+.final tr.podium-2 td{background:rgba(180,180,180,.10)}
+.final tr.podium-3 td{background:rgba(205,127,50,.10)}
+.final td{padding:6px 4px;border-bottom:1px solid var(--border)}
+.final tr:last-child td{border-bottom:none}
+.medal{font-size:13px;width:18px;display:inline-block}
+
+/* Linhas */
+.line-controls{display:flex;gap:10px;background:var(--bg2);padding:10px 14px;border-radius:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;border:1px solid var(--border)}
+.line-controls label{font-size:12px;color:var(--text2)}
+.line-controls select{font-size:13px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);min-width:200px}
+.line-btn{font-size:12px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer}
+.line-btn:hover{background:var(--border2)}
+.chart-wrap{position:relative;width:100%;height:620px;background:var(--bg2);border-radius:12px;padding:14px;border:1px solid var(--border)}
+footer{text-align:center;color:var(--text3);font-size:11px;margin-top:30px}
+
+@media (max-width: 600px){
+  .container{padding:14px 8px}
+  h1{font-size:18px}
+  .team-cell{width:90px;font-size:11px}
+  .pts{width:44px;font-size:11px}
+  .wld{width:52px}
+  .jlbl{min-width:120px;font-size:12px}
+  .race{height:620px}
+  .row{height:24px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>Liga Freeze 2025-2026</h1>
+  <p class="subtitle">22 managers · 30 jornadas · pontuação 3-1-0 (V-E-D)</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="race">Bar Race</button>
+  <button class="tab" data-tab="lines">Evolução de posição</button>
+</div>
+
+<!-- Painel 1: bar race -->
+<div class="panel active" id="panel-race">
+  <div class="controls">
+    <button class="btn" id="btnStart" title="Início" aria-label="Início">⏮</button>
+    <button class="btn" id="btnPrev" title="Anterior" aria-label="Anterior">◀</button>
+    <button class="btn" id="btnPlay" title="Play/Pause">▶</button>
+    <button class="btn" id="btnNext" title="Seguinte" aria-label="Seguinte">▸</button>
+    <button class="btn" id="btnEnd" title="Fim" aria-label="Fim">⏭</button>
+    <input type="range" min="1" max="30" value="1" id="slider" class="slider">
+    <div class="jlbl" id="jlbl">Jornada 1 · 13/09</div>
+    <label class="speed">Vel. <select id="speed"><option value="1500">Lenta</option><option value="900" selected="selected">Normal</option><option value="500">Rápida</option><option value="250">Turbo</option></select></label>
+  </div>
+  <div class="race"><div id="race" class="race-inner"><div class="row" style="transform: translateY(90px);"><div class="rank">4</div><div class="team-cell"><div class="team-name">Allez Les Verts</div><div class="mgr">Zé Carlos</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(74, 158, 255); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(118px);"><div class="rank">5</div><div class="team-cell"><div class="team-name">BorussiaD'outroMundo</div><div class="mgr">Carlos Jesus</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(16, 185, 129); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(34px);"><div class="rank">2</div><div class="team-cell"><div class="team-name">Diogandé CP</div><div class="mgr">Diogo Rainho</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(245, 158, 11); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(482px);"><div class="rank">18</div><div class="team-cell"><div class="team-name">Ferreira Legends</div><div class="mgr">Rafael Ferreira</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(236, 72, 153); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(62px);"><div class="rank">3</div><div class="team-cell"><div class="team-name">GDR Montanelas</div><div class="mgr">Carlos Aguiar</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(148, 163, 184); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(202px);"><div class="rank">8</div><div class="team-cell"><div class="team-name">Godsebio</div><div class="mgr">André Costa</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(139, 92, 246); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(342px);"><div class="rank">13</div><div class="team-cell"><div class="team-name">Javalis Selvagens</div><div class="mgr">Carlos Dias</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(132, 204, 22); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(566px);"><div class="rank">21</div><div class="team-cell"><div class="team-name">Lopes UC</div><div class="mgr">Luís Lopes</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(249, 115, 22); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(6px);"><div class="rank">1</div><div class="team-cell"><div class="team-name">Mike SC</div><div class="mgr">Miguel Pimenta</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(239, 68, 68); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(370px);"><div class="rank">14</div><div class="team-cell"><div class="team-name">Offside Chickens</div><div class="mgr">João Monteiro</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(6, 182, 212); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(594px);"><div class="rank">22</div><div class="team-cell"><div class="team-name">Orlando Tigers</div><div class="mgr">Sergio Medina</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(34, 197, 94); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(174px);"><div class="rank">7</div><div class="team-cell"><div class="team-name">Os Rudolfos</div><div class="mgr">Pedro Gouveia</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(251, 146, 60); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(538px);"><div class="rank">20</div><div class="team-cell"><div class="team-name">QF Galaxy</div><div class="mgr">Rodrigo Rabaça</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(244, 114, 182); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(398px);"><div class="rank">15</div><div class="team-cell"><div class="team-name">RANGERS_TEAM</div><div class="mgr">Eurico Santos</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(163, 163, 163); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(454px);"><div class="rank">17</div><div class="team-cell"><div class="team-name">República dos Coxos</div><div class="mgr">Rui Costa</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(167, 139, 250); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(510px);"><div class="rank">19</div><div class="team-cell"><div class="team-name">Rumoao31_Palaio</div><div class="mgr">Luís Palaio</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(101, 163, 13); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(314px);"><div class="rank">12</div><div class="team-cell"><div class="team-name">SCM</div><div class="mgr">Tiago Avidago</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(234, 88, 12); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(230px);"><div class="rank">9</div><div class="team-cell"><div class="team-name">Secadegas11</div><div class="mgr">Gonçalo Reis</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(220, 38, 38); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(426px);"><div class="rank">16</div><div class="team-cell"><div class="team-name">TMTeam</div><div class="mgr">Rui Simões</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(59, 130, 246); width: 18px;">0</div></div><div class="pts">0 pts</div><div class="wld">0-1-0</div><div class="jres"><div class="res-cell res-l" title="Derrota"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(258px);"><div class="rank">10</div><div class="team-cell"><div class="team-name">Team OUTLAW</div><div class="mgr">Filipe Justino</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(5, 150, 105); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(146px);"><div class="rank">6</div><div class="team-cell"><div class="team-name">Templário</div><div class="mgr">João Tiago</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(194, 65, 12); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div><div class="row" style="transform: translateY(286px);"><div class="rank">11</div><div class="team-cell"><div class="team-name">The Avengers UC</div><div class="mgr">Nuno Santos</div></div><div class="bar-wrap"><div class="bar" style="background: rgb(190, 18, 60); width: 656px;">3</div></div><div class="pts">3 pts</div><div class="wld">1-0-0</div><div class="jres"><div class="res-cell res-w" title="Vitória"></div><div class="res-cell res-empty"></div></div></div></div></div>
+  <div class="legend">
+    <span><i style="background:#1d9e75"></i>vitória (3 pts)</span>
+    <span><i style="background:#f0c14b"></i>empate (1 pt)</span>
+    <span><i style="background:#e24b4a"></i>derrota (0 pts)</span>
+    <span style="margin-left:auto;color:var(--text3)">resultados da jornada à direita →</span>
+  </div>
+  <div class="final" id="final">
+    <h3>🏆 Classificação final</h3>
+    <table id="finalTable"></table>
+  </div>
+</div>
+
+<!-- Painel 2: linhas -->
+<div class="panel" id="panel-lines">
+  <div class="line-controls">
+    <label for="highlight">Destacar equipa</label>
+    <select id="highlight"></select>
+    <button class="line-btn" id="btnReset">Mostrar todas</button>
+    <button class="line-btn" id="btnTop3">Top 3 final</button>
+    <button class="line-btn" id="btnBot3">Bottom 3</button>
+  </div>
+  <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+  <p style="font-size:11px;color:var(--text3);margin-top:8px">Eixo Y invertido: 1.º em cima. Passa o rato/toca numa linha para ver detalhes.</p>
+</div>
+
+<footer>Gerado a partir de liga_freeze.xlsx · 460 jogos individuais agrupados em 30 jornadas</footer>
+</div>
+
+<script>
+const LIGA_DATA = {"teams":["Allez Les Verts","BorussiaD'outroMundo","Diogandé CP","Ferreira Legends","GDR Montanelas","Godsebio","Javalis Selvagens","Lopes UC","Mike SC","Offside Chickens","Orlando Tigers","Os Rudolfos","QF Galaxy","RANGERS_TEAM","República dos Coxos","Rumoao31_Palaio","SCM","Secadegas11","TMTeam","Team OUTLAW","Templário","The Avengers UC"],"managers":["Zé Carlos","Carlos Jesus","Diogo Rainho","Rafael Ferreira","Carlos Aguiar","André Costa","Carlos Dias","Luís Lopes","Miguel Pimenta","João Monteiro","Sergio Medina","Pedro Gouveia","Rodrigo Rabaça","Eurico Santos","Rui Costa","Luís Palaio","Tiago Avidago","Gonçalo Reis","Rui Simões","Filipe Justino","João Tiago","Nuno Santos"],"jornadas":[{"n":1,"d":["13/09"],"r":[[3,1,0,0,58,48,"W"],[3,1,0,0,50,41,"W"],[3,1,0,0,53,40,"W"],[0,0,1,0,40,49,"L"],[3,1,0,0,51,40,"W"],[3,1,0,0,48,43,"W"],[0,0,1,0,43,46,"L"],[0,0,1,0,40,53,"L"],[3,1,0,0,54,40,"W"],[0,0,1,0,41,44,"L"],[0,0,1,0,40,54,"L"],[3,1,0,0,52,47,"W"],[0,0,1,0,40,51,"L"],[0,0,1,0,47,52,"L"],[0,0,1,0,41,50,"L"],[0,0,1,0,48,58,"L"],[0,0,1,0,41,42,"L"],[3,1,0,0,46,43,"W"],[0,0,1,0,43,48,"L"],[3,1,0,0,44,41,"W"],[3,1,0,0,49,40,"W"],[3,1,0,0,42,41,"W"]]},{"n":2,"d":["20/09"],"r":[[3,1,1,0,119,116,"L"],[6,2,0,0,117,99,"W"],[3,1,1,0,115,115,"L"],[0,0,2,0,40,114,"L"],[6,2,0,0,117,103,"W"],[6,2,0,0,115,96,"W"],[0,0,2,0,95,99,"L"],[0,0,2,0,83,108,"L"],[4,1,0,1,115,101,"D"],[0,0,2,0,94,111,"L"],[3,1,1,0,115,116,"W"],[3,1,1,0,105,115,"L"],[3,1,1,0,95,94,"W"],[0,0,2,0,105,119,"L"],[3,1,1,0,109,103,"W"],[3,1,1,0,114,116,"W"],[0,0,2,0,104,108,"L"],[3,1,1,0,104,109,"L"],[3,1,1,0,111,109,"W"],[6,2,0,0,109,41,"W"],[4,1,0,1,110,101,"D"],[6,2,0,0,95,93,"W"]]},{"n":3,"d":["27/09","28/09"],"r":[[9,3,1,0,275,232,"WW"],[9,3,1,0,245,226,"LW"],[6,2,2,0,229,245,"WL"],[3,1,3,0,162,241,"LW"],[12,4,0,0,263,211,"WW"],[12,4,0,0,269,216,"WW"],[0,0,4,0,169,225,"LL"],[0,0,4,0,201,263,"LL"],[4,1,2,1,231,230,"LL"],[0,0,4,0,196,246,"LL"],[3,1,3,0,213,241,"LL"],[3,1,3,0,201,238,"LL"],[6,2,2,0,195,203,"WL"],[0,0,4,0,209,246,"LL"],[9,3,1,0,249,206,"WW"],[9,3,1,0,254,205,"WW"],[3,1,3,0,216,210,"WL"],[9,3,1,0,234,223,"WW"],[9,3,1,0,249,225,"WW"],[9,3,1,0,229,163,"LW"],[10,3,0,1,240,201,"WW"],[6,2,2,0,199,232,"LL"]]},{"n":4,"d":["04/10"],"r":[[12,4,1,0,317,259,"W"],[12,4,1,0,300,273,"W"],[6,2,3,0,276,300,"L"],[6,2,3,0,206,281,"W"],[13,4,0,1,313,261,"D"],[15,5,0,0,321,247,"W"],[0,0,5,0,196,267,"L"],[3,1,4,0,247,304,"W"],[4,1,3,1,278,278,"L"],[0,0,5,0,246,305,"L"],[6,2,3,0,272,291,"W"],[6,2,3,0,238,273,"W"],[9,3,2,0,240,237,"W"],[3,1,4,0,257,293,"W"],[9,3,2,0,283,252,"L"],[10,3,1,1,304,255,"D"],[3,1,4,0,250,255,"L"],[9,3,2,0,269,260,"L"],[9,3,2,0,289,269,"L"],[9,3,2,0,270,209,"L"],[10,3,1,1,271,253,"L"],[9,3,2,0,245,266,"W"]]},{"n":5,"d":["25/10","26/10"],"r":[[15,5,2,0,491,414,"WL"],[18,6,1,0,514,400,"WW"],[12,4,3,0,412,428,"WW"],[6,2,5,0,336,459,"LL"],[19,6,0,1,501,414,"WW"],[21,7,0,0,473,373,"WW"],[0,0,7,0,324,441,"LL"],[6,2,5,0,375,430,"WL"],[7,2,4,1,420,439,"LW"],[6,2,5,0,442,447,"WW"],[9,3,4,0,396,420,"LW"],[6,2,5,0,362,450,"LL"],[9,3,4,0,364,428,"LL"],[3,1,6,0,379,442,"LL"],[9,3,4,0,399,409,"LL"],[16,5,1,1,496,410,"WW"],[9,3,4,0,436,381,"WW"],[9,3,4,0,425,459,"LL"],[12,4,3,0,425,426,"LW"],[15,5,2,0,472,349,"WW"],[13,4,2,1,439,411,"WL"],[9,3,4,0,377,428,"LL"]]},{"n":6,"d":["01/11"],"r":[[15,5,3,0,543,475,"L"],[21,7,1,0,575,452,"W"],[15,5,3,0,475,482,"W"],[9,3,5,0,391,507,"W"],[22,7,0,1,562,451,"W"],[21,7,1,0,521,428,"L"],[0,0,8,0,367,499,"L"],[6,2,6,0,423,502,"L"],[7,2,5,1,479,505,"L"],[6,2,6,0,496,510,"L"],[12,4,4,0,457,473,"W"],[9,3,5,0,434,498,"W"],[9,3,5,0,401,489,"L"],[3,1,7,0,429,497,"L"],[12,4,4,0,457,452,"W"],[16,5,2,1,552,468,"L"],[12,4,4,0,502,444,"W"],[9,3,5,0,478,520,"L"],[15,5,3,0,480,476,"W"],[18,6,2,0,538,408,"W"],[13,4,3,1,502,477,"L"],[12,4,4,0,435,484,"W"]]},{"n":7,"d":["08/11","09/11"],"r":[[16,5,4,1,629,565,"DL"],[24,8,2,0,671,547,"WL"],[15,5,5,0,555,570,"LL"],[12,4,6,0,485,602,"LW"],[28,9,0,1,666,541,"WW"],[27,9,1,0,647,517,"WW"],[3,1,9,0,461,588,"WL"],[9,3,7,0,509,584,"LW"],[10,3,6,1,571,595,"LW"],[12,4,6,0,600,603,"WW"],[12,4,6,0,541,568,"LL"],[15,5,5,0,542,593,"WW"],[9,3,7,0,469,577,"LL"],[6,2,8,0,523,605,"WL"],[15,5,5,0,543,538,"WL"],[16,5,4,1,648,576,"LL"],[18,6,4,0,592,518,"WW"],[12,4,6,0,586,631,"LW"],[19,6,3,1,566,561,"DW"],[18,6,4,0,608,518,"LL"],[19,6,3,1,626,570,"WW"],[12,4,6,0,527,598,"LL"]]},{"n":8,"d":["29/11"],"r":[[19,6,4,1,699,632,"W"],[27,9,2,0,727,596,"W"],[18,6,5,0,611,621,"W"],[12,4,7,0,543,661,"L"],[31,10,0,1,726,595,"W"],[27,9,2,0,714,587,"L"],[6,2,9,0,520,646,"W"],[9,3,8,0,566,646,"L"],[10,3,7,1,625,655,"L"],[12,4,7,0,655,675,"L"],[15,5,6,0,597,614,"W"],[15,5,6,0,588,649,"L"],[9,3,8,0,520,633,"L"],[6,2,9,0,559,667,"L"],[15,5,6,0,588,615,"L"],[19,6,4,1,720,631,"W"],[18,6,5,0,641,574,"L"],[15,5,6,0,663,676,"W"],[22,7,3,1,628,618,"W"],[18,6,5,0,661,576,"L"],[22,7,3,1,684,623,"W"],[15,5,6,0,589,634,"W"]]},{"n":9,"d":["06/12","07/12"],"r":[[19,6,6,1,777,727,"LL"],[27,9,4,0,813,699,"LL"],[24,8,5,0,723,699,"WW"],[18,6,7,0,639,743,"WW"],[34,11,1,1,812,678,"WL"],[33,11,2,0,816,679,"WW"],[12,4,9,0,618,730,"WW"],[9,3,10,0,636,745,"LL"],[13,4,8,1,721,755,"WL"],[13,4,8,1,745,771,"DL"],[18,6,7,0,679,698,"LW"],[19,6,6,1,678,737,"DW"],[9,3,10,0,590,711,"LL"],[12,4,9,0,661,751,"WW"],[18,6,7,0,680,703,"LW"],[19,6,6,1,812,726,"LL"],[21,7,6,0,735,671,"LW"],[15,5,8,0,739,774,"LL"],[22,7,5,1,714,719,"LL"],[21,7,6,0,735,657,"WL"],[28,9,3,1,778,700,"WW"],[21,7,6,0,697,725,"WW"]]},{"n":10,"d":["13/12"],"r":[[22,7,6,1,863,790,"W"],[30,10,4,0,909,790,"W"],[24,8,6,0,808,788,"L"],[21,7,7,0,735,808,"W"],[34,11,2,1,812,727,"L"],[36,12,2,0,900,679,"W"],[15,5,9,0,701,771,"W"],[9,3,11,0,677,828,"L"],[16,5,8,1,814,792,"W"],[13,4,9,1,836,867,"L"],[21,7,7,0,728,698,"W"],[19,6,7,1,715,830,"L"],[9,3,11,0,654,790,"L"],[12,4,10,0,700,840,"L"],[18,6,8,0,680,787,"L"],[22,7,6,1,901,811,"W"],[21,7,7,0,800,767,"L"],[18,6,8,0,827,852,"W"],[22,7,6,1,792,807,"L"],[24,8,6,0,824,696,"W"],[31,10,3,1,857,764,"W"],[21,7,7,0,760,811,"L"]]},{"n":11,"d":["20/12"],"r":[[25,8,6,1,915,825,"W"],[33,11,4,0,964,841,"W"],[24,8,7,0,858,849,"L"],[21,7,8,0,784,865,"L"],[34,11,3,1,812,775,"L"],[39,13,2,0,961,729,"W"],[15,5,10,0,749,824,"L"],[9,3,12,0,726,883,"L"],[19,6,8,1,869,841,"W"],[16,5,9,1,893,916,"W"],[24,8,7,0,781,742,"W"],[19,6,8,1,766,885,"L"],[9,3,12,0,702,870,"L"],[15,5,10,0,780,888,"W"],[21,7,8,0,749,834,"W"],[22,7,7,1,948,880,"L"],[21,7,8,0,835,819,"L"],[21,7,8,0,891,897,"W"],[22,7,7,1,836,860,"L"],[27,9,6,0,872,696,"W"],[34,11,3,1,910,812,"W"],[21,7,8,0,805,875,"L"]]},{"n":12,"d":["27/12","28/12"],"r":[[29,9,6,2,1099,1007,"DW"],[33,11,6,0,1080,983,"LL"],[27,9,8,0,980,985,"LW"],[24,8,9,0,876,958,"LW"],[40,13,3,1,984,923,"WW"],[45,15,2,0,1147,911,"WW"],[18,6,11,0,869,957,"WL"],[12,4,13,0,870,1027,"WL"],[20,6,9,2,1053,1026,"DL"],[16,5,11,1,1009,1084,"LL"],[24,8,9,0,961,927,"LL"],[19,6,10,1,870,1033,"LL"],[12,4,13,0,834,1005,"LW"],[15,5,12,0,846,1016,"LL"],[21,7,10,0,877,986,"LL"],[28,9,7,1,1112,971,"WW"],[27,9,8,0,1009,931,"WW"],[24,8,9,0,1059,1044,"WL"],[28,9,7,1,978,982,"WW"],[27,9,8,0,984,837,"LL"],[40,13,3,1,1050,926,"WW"],[27,9,8,0,977,1005,"WW"]]},{"n":13,"d":["03/01"],"r":[[32,10,6,2,1170,1041,"W"],[36,12,6,0,1168,1033,"W"],[27,9,9,0,1067,1080,"L"],[24,8,10,0,960,1049,"L"],[43,14,3,1,1075,968,"W"],[48,16,2,0,1246,959,"W"],[21,7,11,0,955,1001,"W"],[12,4,14,0,924,1104,"L"],[21,6,9,3,1139,1112,"D"],[19,6,11,1,1104,1171,"W"],[24,8,10,0,1021,988,"L"],[19,6,11,1,904,1104,"L"],[12,4,14,0,882,1104,"L"],[15,5,13,0,891,1107,"L"],[21,7,11,0,932,1050,"L"],[31,10,7,1,1203,1055,"W"],[30,10,8,0,1070,991,"W"],[27,9,9,0,1136,1098,"W"],[28,9,8,1,1022,1068,"L"],[28,9,8,1,1070,923,"D"],[43,14,3,1,1114,981,"W"],[27,9,9,0,1027,1093,"L"]]},{"n":14,"d":["17/01","18/01"],"r":[[38,12,6,2,1284,1132,"WW"],[39,13,7,0,1272,1154,"LW"],[33,11,9,0,1217,1175,"WW"],[30,10,10,0,1112,1148,"WW"],[46,15,4,1,1219,1089,"WL"],[48,16,4,0,1340,1083,"LL"],[21,7,13,0,1049,1125,"LL"],[12,4,16,0,1024,1253,"LL"],[24,7,10,3,1237,1234,"WL"],[25,8,11,1,1212,1274,"WW"],[25,8,11,1,1125,1112,"DL"],[25,8,11,1,1052,1228,"WW"],[18,6,14,0,1026,1203,"WW"],[18,6,14,0,995,1208,"LW"],[21,7,13,0,1034,1157,"LL"],[34,11,8,1,1309,1163,"WL"],[36,12,8,0,1216,1098,"WW"],[27,9,11,0,1220,1207,"LL"],[31,10,9,1,1136,1194,"LW"],[32,10,8,2,1174,1017,"DW"],[43,14,5,1,1212,1113,"LL"],[27,9,11,0,1119,1217,"LL"]]},{"n":15,"d":["24/01"],"r":[[38,12,7,2,1370,1221,"L"],[39,13,8,0,1353,1250,"L"],[36,12,9,0,1288,1238,"W"],[30,10,11,0,1175,1219,"L"],[49,16,4,1,1300,1158,"W"],[51,17,4,0,1428,1156,"W"],[21,7,14,0,1115,1192,"L"],[12,4,17,0,1108,1341,"L"],[24,7,11,3,1310,1322,"L"],[28,9,11,1,1300,1358,"W"],[28,9,11,1,1221,1193,"W"],[28,9,11,1,1119,1294,"W"],[18,6,15,0,1112,1293,"L"],[18,6,15,0,1048,1295,"L"],[21,7,14,0,1103,1238,"L"],[37,12,8,1,1398,1249,"W"],[36,12,9,0,1285,1186,"L"],[30,10,11,0,1304,1268,"W"],[31,10,10,1,1197,1278,"L"],[35,11,8,2,1262,1086,"W"],[46,15,5,1,1299,1166,"W"],[30,10,11,0,1209,1303,"W"]]},{"n":16,"d":["31/01"],"r":[[41,13,7,2,1415,1240,"W"],[39,13,9,0,1383,1286,"L"],[36,12,10,0,1323,1276,"L"],[30,10,12,0,1207,1264,"L"],[52,17,4,1,1338,1193,"W"],[54,18,4,0,1472,1195,"W"],[21,7,15,0,1143,1243,"L"],[15,5,17,0,1145,1375,"W"],[25,7,11,4,1356,1368,"D"],[28,9,12,1,1337,1401,"L"],[29,9,11,2,1267,1239,"D"],[31,10,11,1,1164,1326,"W"],[21,7,15,0,1160,1335,"W"],[18,6,16,0,1067,1340,"L"],[22,7,14,1,1144,1279,"D"],[37,12,9,1,1440,1297,"L"],[39,13,9,0,1321,1216,"W"],[30,10,12,0,1343,1312,"L"],[34,11,10,1,1240,1315,"W"],[38,12,8,2,1313,1114,"W"],[47,15,5,2,1340,1207,"D"],[30,10,12,0,1243,1340,"L"]]},{"n":17,"d":["07/02"],"r":[[44,14,7,2,1457,1270,"W"],[42,14,9,0,1429,1323,"W"],[36,12,11,0,1360,1322,"L"],[30,10,13,0,1238,1304,"L"],[52,17,5,1,1374,1239,"L"],[57,19,4,0,1512,1231,"W"],[21,7,16,0,1173,1285,"L"],[18,6,17,0,1183,1375,"W"],[25,7,12,4,1394,1407,"L"],[31,10,12,1,1381,1430,"W"],[29,9,12,2,1308,1283,"L"],[31,10,12,1,1206,1370,"L"],[21,7,16,0,1196,1375,"L"],[18,6,17,0,1102,1394,"L"],[22,7,15,1,1144,1317,"L"],[40,13,9,1,1484,1338,"W"],[39,13,10,0,1350,1260,"L"],[33,11,12,0,1383,1343,"W"],[37,12,10,1,1279,1353,"W"],[41,13,8,2,1367,1149,"W"],[50,16,5,2,1384,1249,"W"],[33,11,12,0,1289,1376,"W"]]},{"n":18,"d":["14/02","15/02"],"r":[[50,16,7,2,1563,1364,"WW"],[48,16,9,0,1531,1404,"WW"],[36,12,13,0,1460,1440,"LL"],[31,10,14,1,1328,1408,"DL"],[52,17,7,1,1456,1339,"LL"],[63,21,4,0,1642,1304,"WW"],[24,8,17,0,1259,1384,"LW"],[18,6,19,0,1239,1486,"LL"],[28,8,13,4,1492,1501,"WL"],[37,12,12,1,1487,1523,"WW"],[29,9,14,2,1386,1387,"LL"],[37,12,12,1,1310,1446,"WW"],[21,7,18,0,1284,1481,"LL"],[24,8,17,0,1220,1461,"WW"],[28,9,15,1,1242,1411,"WW"],[46,15,9,1,1602,1426,"WW"],[42,14,11,0,1442,1354,"LW"],[33,11,14,0,1463,1437,"LL"],[37,12,12,1,1375,1454,"LL"],[42,13,9,3,1457,1240,"DL"],[56,18,5,2,1474,1311,"WW"],[33,11,14,0,1335,1486,"LL"]]},{"n":19,"d":["21/02"],"r":[[53,17,7,2,1655,1427,"W"],[51,17,9,0,1588,1451,"W"],[37,12,13,1,1525,1505,"D"],[34,11,14,1,1388,1467,"W"],[52,17,8,1,1518,1422,"L"],[66,22,4,0,1719,1359,"W"],[24,8,18,0,1314,1445,"L"],[18,6,20,0,1301,1550,"L"],[31,9,13,4,1567,1572,"W"],[40,13,12,1,1551,1585,"W"],[29,9,15,2,1447,1458,"L"],[37,12,13,1,1365,1523,"L"],[21,7,19,0,1355,1556,"L"],[24,8,18,0,1267,1518,"L"],[31,10,15,1,1313,1472,"W"],[49,16,9,1,1685,1488,"W"],[42,14,12,0,1501,1414,"L"],[33,11,15,0,1510,1487,"L"],[38,12,12,2,1440,1519,"D"],[42,13,10,3,1520,1332,"L"],[59,19,5,2,1524,1358,"W"],[36,12,14,0,1396,1541,"W"]]},{"n":20,"d":["28/02","01/03"],"r":[[56,18,8,2,1811,1561,"WL"],[51,17,11,0,1682,1583,"LL"],[37,12,15,1,1635,1638,"LL"],[34,11,16,1,1474,1578,"LL"],[52,17,10,1,1612,1548,"LL"],[72,24,4,0,1839,1446,"WW"],[24,8,20,0,1394,1558,"LL"],[21,7,21,0,1411,1671,"LW"],[37,11,13,4,1725,1708,"WW"],[41,13,13,2,1653,1689,"DL"],[32,10,16,2,1559,1562,"WL"],[38,12,14,2,1467,1634,"DL"],[24,8,20,0,1467,1670,"WL"],[27,9,19,0,1373,1635,"LW"],[34,11,16,1,1419,1568,"LW"],[55,18,9,1,1829,1590,"WW"],[42,14,14,0,1617,1557,"LL"],[39,13,15,0,1638,1606,"WW"],[44,14,12,2,1572,1619,"WW"],[48,15,10,3,1642,1443,"WW"],[65,21,5,2,1644,1456,"WW"],[39,13,15,0,1518,1661,"LW"]]},{"n":21,"d":["07/03"],"r":[[59,19,8,2,1866,1609,"W"],[51,17,12,0,1711,1633,"L"],[37,12,16,1,1668,1674,"L"],[34,11,17,1,1511,1622,"L"],[52,17,11,1,1644,1589,"L"],[75,25,4,0,1893,1481,"W"],[27,9,20,0,1431,1587,"W"],[21,7,22,0,1451,1723,"L"],[40,12,13,4,1775,1737,"W"],[44,14,13,2,1699,1729,"W"],[32,10,17,2,1594,1616,"L"],[38,12,15,2,1515,1689,"L"],[27,9,20,0,1503,1703,"W"],[27,9,20,0,1402,1672,"L"],[35,11,16,2,1460,1609,"D"],[58,19,9,1,1887,1632,"W"],[42,14,15,0,1659,1615,"L"],[42,14,15,0,1679,1638,"W"],[47,15,12,2,1616,1656,"W"],[48,15,11,3,1682,1489,"L"],[68,22,5,2,1696,1496,"W"],[40,13,15,1,1559,1702,"D"]]},{"n":22,"d":["14/03","15/03"],"r":[[65,21,8,2,1946,1658,"WW"],[52,17,12,1,1742,1664,"D"],[40,13,17,1,1748,1751,"LW"],[38,12,17,2,1573,1671,"WD"],[55,18,12,1,1706,1652,"WL"],[81,27,4,0,1957,1541,"WW"],[27,9,22,0,1477,1659,"LL"],[27,9,22,0,1523,1772,"WW"],[46,14,13,4,1867,1805,"WW"],[47,15,14,2,1759,1786,"LW"],[32,10,19,2,1632,1692,"LL"],[38,12,17,2,1571,1767,"LL"],[27,9,22,0,1537,1764,"LL"],[30,10,20,0,1433,1689,"W"],[35,11,18,2,1496,1666,"LL"],[64,21,9,1,1983,1701,"WW"],[42,14,17,0,1719,1683,"LL"],[42,14,15,0,1679,1638,""],[50,16,13,2,1672,1728,"WL"],[51,16,12,3,1734,1535,"LW"],[71,23,6,2,1778,1567,"LW"],[43,14,16,1,1619,1762,"WL"]]},{"n":23,"d":["21/03"],"r":[[68,22,8,2,2009,1713,"W"],[52,17,13,1,1797,1727,"L"],[43,14,17,1,1809,1809,"W"],[38,12,18,2,1626,1733,"L"],[58,19,12,1,1767,1708,"W"],[81,27,5,0,2013,1602,"L"],[30,10,22,0,1527,1708,"W"],[27,9,23,0,1571,1830,"L"],[46,14,14,4,1923,1872,"L"],[50,16,14,2,1813,1833,"W"],[32,10,20,2,1681,1742,"L"],[38,12,18,2,1628,1829,"L"],[27,9,23,0,1584,1817,"L"],[33,11,20,0,1495,1746,"W"],[35,11,19,2,1554,1727,"L"],[67,22,9,1,2041,1749,"W"],[42,14,18,0,1766,1737,"L"],[45,15,15,0,1741,1691,"W"],[53,17,13,2,1725,1775,"W"],[51,16,13,3,1786,1589,"L"],[74,24,6,2,1845,1623,"W"],[46,15,16,1,1673,1814,"W"]]},{"n":24,"d":["04/04","05/04"],"r":[[74,24,8,2,2099,1782,"WW"],[58,19,13,1,1881,1802,"WW"],[43,14,19,1,1877,1902,"LL"],[41,13,19,2,1706,1811,"WL"],[61,20,13,1,1855,1789,"WL"],[81,27,7,0,2073,1674,"LL"],[30,10,24,0,1575,1781,"LL"],[30,10,24,0,1635,1903,"LW"],[52,16,14,4,2011,1928,"WW"],[50,16,16,2,1885,1924,"LL"],[32,10,22,2,1739,1814,"LL"],[44,14,18,2,1716,1889,"WW"],[30,10,24,0,1642,1878,"WL"],[39,13,20,0,1571,1805,"WW"],[35,11,21,2,1618,1816,"LL"],[70,23,10,1,2107,1817,"LW"],[42,14,20,0,1818,1819,"LL"],[48,16,16,0,1815,1765,"LW"],[57,18,13,3,1823,1860,"DW"],[54,17,14,3,1864,1661,"WL"],[80,26,6,2,1943,1701,"WW"],[50,16,16,2,1771,1903,"DW"]]},{"n":25,"d":["11/04"],"r":[[77,25,8,2,2146,1824,"W"],[58,19,14,1,1923,1853,"L"],[46,15,19,1,1928,1942,"W"],[41,13,20,2,1743,1864,"L"],[64,21,13,1,1905,1834,"W"],[81,27,8,0,2115,1721,"L"],[30,10,25,0,1609,1830,"L"],[33,11,24,0,1684,1937,"W"],[55,17,14,4,2062,1976,"W"],[53,17,16,2,1926,1960,"W"],[32,10,23,2,1775,1855,"L"],[44,14,19,2,1761,1941,"L"],[33,11,24,0,1695,1915,"W"],[39,13,21,0,1611,1856,"L"],[38,12,21,2,1669,1858,"W"],[73,24,10,1,2156,1860,"W"],[42,14,21,0,1863,1869,"L"],[48,16,17,0,1863,1816,"L"],[60,19,13,3,1881,1909,"W"],[54,17,15,3,1907,1710,"L"],[80,26,7,2,1992,1759,"L"],[53,17,16,2,1823,1948,"W"]]},{"n":26,"d":["18/04"],"r":[[77,25,9,2,2171,1851,"L"],[61,20,14,1,1977,1901,"W"],[46,15,20,1,1958,1978,"L"],[41,13,21,2,1775,1905,"L"],[64,21,14,1,1945,1877,"L"],[81,27,9,0,2151,1778,"L"],[33,11,25,0,1645,1860,"W"],[33,11,25,0,1705,1980,"L"],[55,17,15,4,2103,2025,"L"],[56,18,16,2,1969,2000,"W"],[35,11,23,2,1821,1898,"W"],[45,14,19,3,1804,1984,"D"],[36,12,24,0,1722,1940,"W"],[42,14,21,0,1668,1892,"W"],[38,12,22,2,1705,1901,"L"],[73,24,11,1,2204,1914,"L"],[45,15,21,0,1912,1910,"W"],[51,17,17,0,1906,1837,"W"],[63,20,13,3,1924,1945,"W"],[55,17,15,4,1950,1753,"D"],[83,27,7,2,2033,1791,"W"],[53,17,17,2,1866,1994,"L"]]},{"n":27,"d":["25/04","26/04"],"r":[[80,26,10,2,2259,1940,"WL"],[61,20,16,1,2043,1994,"LL"],[47,15,21,2,2028,2052,"DL"],[41,13,23,2,1831,2000,"LL"],[64,21,16,1,2017,1972,"LL"],[81,27,11,0,2215,1856,"LL"],[36,12,26,0,1729,1939,"LW"],[39,13,25,0,1785,2047,"WW"],[55,17,17,4,2173,2107,"LL"],[59,19,17,2,2053,2079,"LW"],[41,13,23,2,1921,1970,"WW"],[51,16,19,3,1888,2050,"WW"],[39,13,25,0,1808,2022,"LW"],[48,16,21,0,1774,1956,"WW"],[41,13,23,2,1781,1975,"WL"],[79,26,11,1,2294,2000,"WW"],[46,15,22,1,1982,1988,"DL"],[54,18,18,0,1984,1922,"LW"],[66,21,14,3,2010,2032,"WL"],[61,19,15,4,2044,1834,"WW"],[89,29,7,2,2119,1859,"WW"],[53,17,19,2,1940,2084,"LL"]]},{"n":28,"d":["02/05"],"r":[[80,26,11,2,2317,2000,"L"],[64,21,16,1,2101,2045,"W"],[50,16,21,2,2081,2086,"W"],[42,13,23,3,1874,2043,"D"],[67,22,16,1,2077,2030,"W"],[84,28,11,0,2282,1905,"W"],[36,12,27,0,1793,2006,"L"],[42,14,25,0,1831,2091,"W"],[58,18,17,4,2240,2171,"W"],[60,19,17,3,2094,2120,"D"],[41,13,24,2,1967,2028,"L"],[54,17,19,3,1936,2097,"W"],[39,13,26,0,1855,2070,"L"],[48,16,22,0,1818,2002,"L"],[42,13,23,3,1824,2018,"D"],[82,27,11,1,2352,2046,"W"],[46,15,23,1,2043,2050,"L"],[55,18,18,1,2025,1963,"D"],[66,21,15,3,2061,2090,"L"],[61,19,16,4,2078,1887,"L"],[89,29,8,2,2168,1926,"L"],[56,18,19,2,2002,2145,"W"]]},{"n":29,"d":["09/05","10/05"],"r":[[86,28,11,2,2403,2058,"WW"],[64,21,18,1,2163,2117,"LL"],[50,16,23,2,2159,2170,"LL"],[42,13,25,3,1944,2122,"LL"],[70,23,17,1,2157,2109,"WL"],[87,29,12,0,2358,1983,"LW"],[42,14,27,0,1873,2075,"WW"],[46,15,25,1,1911,2169,"DW"],[64,20,17,4,2328,2248,"WW"],[60,19,19,3,2154,2200,"LL"],[44,14,25,2,2047,2102,"LW"],[60,19,19,3,2038,2180,"WW"],[42,14,27,0,1931,2145,"WL"],[48,16,24,0,1886,2079,"LL"],[42,13,25,3,1894,2104,"LL"],[85,28,12,1,2428,2120,"WL"],[46,15,25,1,2089,2133,"LL"],[58,19,19,1,2111,2049,"WL"],[72,23,15,3,2149,2168,"WW"],[64,20,17,4,2146,1956,"LW"],[93,30,8,3,2248,1996,"DW"],[62,20,19,2,2080,2214,"WW"]]},{"n":30,"d":["16/05"],"r":[[86,28,12,2,2460,2116,"L"],[67,22,18,1,2217,2164,"W"],[53,17,23,2,2218,2213,"W"],[42,13,26,3,1987,2181,"L"],[73,24,17,1,2206,2143,"W"],[87,29,13,0,2410,2062,"L"],[42,14,28,0,1920,2129,"L"],[49,16,25,1,1973,2224,"W"],[64,20,18,4,2387,2310,"L"],[60,19,20,3,2188,2249,"L"],[44,14,26,2,2090,2157,"L"],[63,20,19,3,2100,2239,"W"],[45,15,27,0,1991,2197,"W"],[51,17,24,0,1929,2113,"W"],[45,14,25,3,1949,2147,"W"],[88,29,12,1,2507,2172,"W"],[46,15,26,1,2123,2176,"L"],[58,19,20,1,2163,2109,"L"],[75,24,15,3,2216,2221,"W"],[64,20,18,4,2201,2018,"L"],[93,30,9,3,2301,2063,"L"],[65,21,19,2,2138,2271,"W"]]}]};
+const teams = LIGA_DATA.teams;
+const managers = LIGA_DATA.managers;
+const jornadas = LIGA_DATA.jornadas;
+const N = teams.length;
+const PALETTE = ['#4a9eff','#10b981','#f59e0b','#ec4899','#94a3b8','#8b5cf6','#84cc16','#f97316','#ef4444','#06b6d4','#22c55e','#fb923c','#f472b6','#a3a3a3','#a78bfa','#65a30d','#ea580c','#dc2626','#3b82f6','#059669','#c2410c','#be123c'];
+
+// ===== TABS =====
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+    if (t.dataset.tab === 'lines' && !window._lineInited) initLines();
+  };
+});
+
+// ===== BAR RACE =====
+let currentJ = 1, playing = false, timer = null, speed = 900;
+const race = document.getElementById('race');
+const ROW_H = 28, TOP_PAD = 6;
+const rowEls = [];
+
+for (let i = 0; i < N; i++) {
+  const div = document.createElement('div');
+  div.className = 'row';
+  div.innerHTML = '<div class="rank"></div><div class="team-cell"><div class="team-name"></div><div class="mgr"></div></div><div class="bar-wrap"><div class="bar" style="background:'+PALETTE[i]+'"></div></div><div class="pts"></div><div class="wld"></div><div class="jres"></div>';
+  race.appendChild(div);
+  rowEls.push({el: div, rank: div.querySelector('.rank'), name: div.querySelector('.team-name'), mgr: div.querySelector('.mgr'), bar: div.querySelector('.bar'), pts: div.querySelector('.pts'), wld: div.querySelector('.wld'), jres: div.querySelector('.jres')});
+}
+
+function computeOrder(rows) {
+  return [...Array(N).keys()].sort((a,b) => {
+    const ra = rows[a], rb = rows[b];
+    if (rb[0] !== ra[0]) return rb[0] - ra[0];
+    const da = ra[4]-ra[5], db = rb[4]-rb[5];
+    if (db !== da) return db - da;
+    return rb[4] - ra[4];
+  });
+}
+
+function renderRace(jn) {
+  const jdata = jornadas[jn-1];
+  const rows = jdata.r;
+  const order = computeOrder(rows);
+  const maxPts = rows[order[0]][0] || 1;
+  const containerW = race.clientWidth || race.parentElement.clientWidth || 1000;
+  const barAreaPx = Math.max(containerW - 26 - 160 - 54 - 64 - 46 - 60, 160);
+  for (let pos = 0; pos < N; pos++) {
+    const i = order[pos];
+    const r = rows[i];
+    const row = rowEls[i];
+    row.el.style.transform = 'translateY('+(TOP_PAD + pos*ROW_H)+'px)';
+    row.rank.textContent = pos+1;
+    row.name.textContent = teams[i];
+    row.mgr.textContent = managers[i];
+    const w = Math.max(18, (r[0]/maxPts) * barAreaPx);
+    row.bar.style.width = w + 'px';
+    row.bar.textContent = r[0];
+    row.pts.textContent = r[0] + ' pts';
+    row.wld.textContent = r[1]+'-'+r[2]+'-'+r[3];
+    const jres = r[6] || '';
+    let html = '';
+    for (let k = 0; k < 2; k++) {
+      if (k < jres.length) {
+        const c = jres[k];
+        const cls = c === 'W' ? 'res-w' : c === 'L' ? 'res-l' : 'res-d';
+        const lbl = c==='W'?'Vitória':c==='L'?'Derrota':'Empate';
+        html += '<div class="res-cell '+cls+'" title="'+lbl+'">'+(c==='D'?'·':'')+'</div>';
+      } else {
+        html += '<div class="res-cell res-empty"></div>';
+      }
+    }
+    row.jres.innerHTML = html;
+  }
+  document.getElementById('jlbl').textContent = 'Jornada '+jn+' · '+jdata.d.join(' + ');
+  document.getElementById('slider').value = jn;
+  const finalDiv = document.getElementById('final');
+  if (jn === 30) { finalDiv.classList.add('show'); renderFinal(order, rows); }
+  else { finalDiv.classList.remove('show'); }
+}
+
+function renderFinal(order, rows) {
+  const tbl = document.getElementById('finalTable');
+  let html = '<thead><tr><th style="width:32px">#</th><th>Equipa</th><th>Manager</th><th class="num">V</th><th class="num">D</th><th class="num">E</th><th class="num">PF</th><th class="num">PA</th><th class="num">Dif</th><th class="num">Pts</th></tr></thead><tbody>';
+  for (let pos = 0; pos < N; pos++) {
+    const i = order[pos];
+    const r = rows[i];
+    const cls = pos === 0 ? 'podium-1' : pos === 1 ? 'podium-2' : pos === 2 ? 'podium-3' : '';
+    const medal = pos === 0 ? '🥇' : pos === 1 ? '🥈' : pos === 2 ? '🥉' : '';
+    const diff = r[4]-r[5];
+    const diffColor = diff>=0?'#1d9e75':'#e24b4a';
+    const diffStr = (diff>=0?'+':'')+diff;
+    html += '<tr class="'+cls+'"><td><span class="medal">'+medal+'</span>'+(pos+1)+'</td><td style="font-weight:500">'+teams[i]+'</td><td style="color:var(--text2)">'+managers[i]+'</td><td class="num">'+r[1]+'</td><td class="num">'+r[2]+'</td><td class="num">'+r[3]+'</td><td class="num">'+r[4]+'</td><td class="num">'+r[5]+'</td><td class="num" style="color:'+diffColor+'">'+diffStr+'</td><td class="num" style="font-weight:600">'+r[0]+'</td></tr>';
+  }
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+function setPlaying(p) {
+  playing = p;
+  document.getElementById('btnPlay').textContent = playing ? '⏸' : '▶';
+  if (timer) { clearInterval(timer); timer = null; }
+  if (playing) {
+    timer = setInterval(() => {
+      if (currentJ >= 30) { setPlaying(false); return; }
+      currentJ++; renderRace(currentJ);
+    }, speed);
+  }
+}
+
+document.getElementById('btnPlay').onclick = () => setPlaying(!playing);
+document.getElementById('btnNext').onclick = () => { if (currentJ<30){currentJ++; renderRace(currentJ);} };
+document.getElementById('btnPrev').onclick = () => { if (currentJ>1){currentJ--; renderRace(currentJ);} };
+document.getElementById('btnStart').onclick = () => { currentJ=1; renderRace(currentJ); setPlaying(false); };
+document.getElementById('btnEnd').onclick = () => { currentJ=30; renderRace(currentJ); setPlaying(false); };
+document.getElementById('slider').oninput = (e) => { currentJ = +e.target.value; renderRace(currentJ); setPlaying(false); };
+document.getElementById('speed').onchange = (e) => { speed = +e.target.value; if (playing) setPlaying(true); };
+
+renderRace(1);
+
+// ===== LINHAS =====
+function initLines() {
+  window._lineInited = true;
+  const positions = [];
+  for (let i = 0; i < N; i++) positions.push([]);
+  for (let jn = 0; jn < jornadas.length; jn++) {
+    const order = computeOrder(jornadas[jn].r);
+    for (let pos = 0; pos < N; pos++) positions[order[pos]].push(pos+1);
+  }
+  const finalOrder = computeOrder(jornadas[jornadas.length-1].r);
+  const sel = document.getElementById('highlight');
+  sel.innerHTML = '<option value="-1">— nenhuma —</option>';
+  finalOrder.forEach((i, pos) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = (pos+1)+'. '+teams[i]+' ('+managers[i]+')';
+    sel.appendChild(opt);
+  });
+  const labels = Array.from({length: jornadas.length}, (_, k) => 'J'+(k+1));
+  const datasets = teams.map((t, i) => ({
+    label: t,
+    data: positions[i],
+    borderColor: PALETTE[i],
+    backgroundColor: PALETTE[i],
+    borderWidth: 1.5,
+    pointRadius: 0,
+    pointHoverRadius: 5,
+    tension: 0.25,
+    _teamIdx: i
+  }));
+  const chart = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => items[0].label,
+            label: (item) => {
+              const i = item.dataset._teamIdx;
+              const r = jornadas[item.dataIndex].r[i];
+              return teams[i]+' ('+managers[i]+'): '+item.parsed.y+'.º · '+r[0]+' pts · '+r[1]+'-'+r[2]+'-'+r[3];
+            }
+          }
+        }
+      },
+      scales: {
+        y: { reverse: true, min: 1, max: N, ticks: { stepSize: 1, font: { size: 10 } }, grid: { color: 'rgba(128,128,128,0.08)' }, title: { display: true, text: 'Posição', font: { size: 11 } } },
+        x: { ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 15 }, grid: { display: false } }
+      }
+    }
+  });
+  function highlight(indices) {
+    const set = new Set(indices);
+    chart.data.datasets.forEach((ds) => {
+      if (set.size === 0) { ds.borderColor = PALETTE[ds._teamIdx]; ds.borderWidth = 1.5; ds.pointRadius = 0; }
+      else if (set.has(ds._teamIdx)) { ds.borderColor = PALETTE[ds._teamIdx]; ds.borderWidth = 3; ds.pointRadius = 3; }
+      else { ds.borderColor = 'rgba(150,150,150,0.15)'; ds.borderWidth = 1; ds.pointRadius = 0; }
+    });
+    chart.update('none');
+  }
+  sel.onchange = (e) => { const v = +e.target.value; highlight(v < 0 ? [] : [v]); };
+  document.getElementById('btnReset').onclick = () => { sel.value = '-1'; highlight([]); };
+  document.getElementById('btnTop3').onclick = () => { sel.value = '-1'; highlight([finalOrder[0], finalOrder[1], finalOrder[2]]); };
+  document.getElementById('btnBot3').onclick = () => { sel.value = '-1'; highlight([finalOrder[N-1], finalOrder[N-2], finalOrder[N-3]]); };
+}
+</script>
+
+</body></html>
